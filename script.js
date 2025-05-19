@@ -42,20 +42,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchButton = document.getElementById('searchButton');
     const clearSearchButton = document.getElementById('clearSearchButton');
     const searchResultsArea = document.getElementById('searchResultsArea');
+    const searchExportArea = document.getElementById('searchExportArea');
+    const exportSearchResultButton = document.getElementById('exportSearchResultButton');
 
-    const exportDataButton = document.getElementById('exportDataButton');
+    const exportBackupButton = document.getElementById('exportBackupButton'); // Renamed for clarity
     const importFile = document.getElementById('importFile');
+    const exportFormatSelect = document.getElementById('exportFormatSelect');
+    const exportFormattedDataButton = document.getElementById('exportFormattedDataButton');
+    const showDataGuideButton = document.getElementById('showDataGuideButton');
+    const dataGuideModal = document.getElementById('dataGuideModal');
+    const closeDataGuideModal = document.getElementById('closeDataGuideModal');
+    const understandDataGuideButton = document.getElementById('understandDataGuideButton');
+
 
     let currentView = 'record';
     let activeKebabMenu = null;
+    let currentSearchResults = []; // 検索結果を保持する配列
 
-    // --- Theme Management ---
+    // --- Theme Management --- (変更なし)
     function applyTheme(theme) {
         document.body.classList.toggle('dark-mode', theme === 'dark');
         themeToggleIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
         themeToggleIcon.title = theme === 'dark' ? 'ライトテーマに切り替え' : 'ダークテーマに切り替え';
     }
-
     function loadTheme() {
         const savedTheme = localStorage.getItem('niwaWASM_theme');
         if (savedTheme) {
@@ -65,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             applyTheme(prefersDark ? 'dark' : 'light');
         }
     }
-
     themeToggleIcon.addEventListener('click', () => {
         const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
         applyTheme(newTheme);
@@ -73,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     loadTheme();
 
-    // --- Navigation ---
+    // --- Navigation --- (変更なし)
     function showView(viewName) {
         if (!views[viewName] || !viewTitles[viewName]) return;
         currentView = viewName;
@@ -89,44 +97,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (viewName === 'search') searchInput.focus();
         closeAllKebabMenus();
     }
-
     navRecordIcon.addEventListener('click', () => showView('record'));
     navSearchIcon.addEventListener('click', () => showView('search'));
     navDataIcon.addEventListener('click', () => showView('data'));
 
-    // --- URL Auto-linking ---
+    // --- URL Auto-linking --- (変更なし)
     function autoLinkText(text) {
         const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\bwww\.[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
         return text.replace(urlPattern, (url) => {
             const properUrl = url.startsWith('www.') ? 'http://' + url : url;
-            // Escape HTML in URL text content to prevent XSS if URL itself contains HTML characters
             const escapedUrlText = url.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             return `<a href="${properUrl}" target="_blank" rel="noopener noreferrer">${escapedUrlText}</a>`;
         });
     }
     
-    // --- Kebab Menu ---
+    // --- Kebab Menu --- (変更なし)
     function closeAllKebabMenus() {
         document.querySelectorAll('.kebab-menu').forEach(menu => menu.style.display = 'none');
         activeKebabMenu = null;
     }
-
     function createKebabMenu(memo) {
         const menuDiv = document.createElement('div');
         menuDiv.className = 'kebab-menu';
         menuDiv.dataset.memoId = memo.id;
         const ul = document.createElement('ul');
-
         const copyLi = document.createElement('li');
         const copyButton = document.createElement('button');
         copyButton.textContent = '内容コピー';
         copyButton.addEventListener('click', (e) => {
             e.stopPropagation();
-            window.goCopyMemoContent(memo.id); // Call Go function
+            window.goCopyMemoContent(memo.id);
             closeAllKebabMenus();
         });
         copyLi.appendChild(copyButton);
-
         const deleteLi = document.createElement('li');
         const deleteButton = document.createElement('button');
         deleteButton.textContent = '削除';
@@ -139,13 +142,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeAllKebabMenus();
         });
         deleteLi.appendChild(deleteButton);
-
         ul.appendChild(copyLi);
         ul.appendChild(deleteLi);
         menuDiv.appendChild(ul);
         return menuDiv;
     }
-
     document.body.addEventListener('click', (event) => {
         if (activeKebabMenu && !activeKebabMenu.contains(event.target) && !event.target.closest('.kebab-menu-button')) {
             closeAllKebabMenus();
@@ -158,35 +159,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         const date = new Date(dateString);
         return date.toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
-
     function renderMemos(memos, displayAreaElement) {
-        displayAreaElement.innerHTML = ''; // Clear previous items
-        if (!memos || memos.length === 0) {
-            // Message for empty list is handled by jsUpdateRecordListTitleVisibility or jsDisplaySearchResults
-            return;
-        }
+        displayAreaElement.innerHTML = ''; 
+        if (!memos || memos.length === 0) return;
 
         memos.forEach(memo => {
             const item = document.createElement('div');
             item.className = 'memo-item';
             item.dataset.id = memo.id;
-
             const contentDiv = document.createElement('div');
             contentDiv.className = 'memo-item-content';
             contentDiv.innerHTML = autoLinkText(memo.content);
-
             const timestampDiv = document.createElement('div');
             timestampDiv.className = 'memo-item-timestamp';
             timestampDiv.textContent = `記録日時: ${formatDate(memo.createdAt)}`;
-            
             const kebabButton = document.createElement('button');
             kebabButton.className = 'kebab-menu-button';
-            kebabButton.innerHTML = '&#x22EE;'; // Vertical ellipsis (ケバブアイコン)
+            kebabButton.innerHTML = '&#x22EE;';
             kebabButton.title = 'アクション';
-            
             const kebabMenu = createKebabMenu(memo);
-            item.appendChild(kebabMenu); // Append menu first for positioning context
-
+            item.appendChild(kebabMenu);
             kebabButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (activeKebabMenu === kebabMenu && kebabMenu.style.display === 'block') {
@@ -197,7 +189,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     activeKebabMenu = kebabMenu;
                 }
             });
-
             item.appendChild(contentDiv);
             item.appendChild(timestampDiv);
             item.appendChild(kebabButton);
@@ -205,16 +196,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    window.jsDisplayMemos = (memos) => { // Exposed to Go for Record View
+    window.jsDisplayMemos = (memos) => {
         renderMemos(memos, recordDisplayArea);
     };
     
-    window.jsUpdateRecordListTitleVisibility = (visible) => { // Exposed to Go
+    window.jsUpdateRecordListTitleVisibility = (visible) => {
         recordViewListTitle.style.display = visible ? 'block' : 'none';
         const messageElement = recordDisplayArea.querySelector('.message');
         if (messageElement) messageElement.remove();
-
-        if (!visible && recordDisplayArea.innerHTML === '') { // Check if area is truly empty
+        if (!visible && recordDisplayArea.innerHTML === '') {
              recordDisplayArea.innerHTML = '<p class="message">記録はまだありません。</p>';
         }
     };
@@ -222,26 +212,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveMemoButton.addEventListener('click', () => {
         window.goSaveMemo(memoContent.value);
     });
-
     memoContent.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             e.preventDefault();
             window.goSaveMemo(memoContent.value);
         }
     });
-
-    window.jsClearMemoInput = () => { // Exposed to Go
+    window.jsClearMemoInput = () => {
         memoContent.value = '';
         memoContent.focus();
     };
-    
-    window.jsCopyToClipboardAndFeedback = async (text, memoId) => { // Exposed to Go
+    window.jsCopyToClipboardAndFeedback = async (text, memoId) => {
         try {
             await navigator.clipboard.writeText(text);
             alert('内容をクリップボードにコピーしました。');
-            // Optional: Find the specific copy button and give visual feedback
-            // const kebabMenu = document.querySelector(`.kebab-menu[data-memo-id="${memoId}"]`);
-            // if (kebabMenu) { /* ... */ }
         } catch (err) {
             console.error('クリップボードへのコピーに失敗:', err);
             alert('コピーに失敗しました。ブラウザのコンソールで詳細を確認してください。');
@@ -251,46 +235,74 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Search View ---
     function performSearch() {
         const query = searchInput.value;
-        window.goSearchMemos(query);
-        clearSearchButton.style.display = query ? 'inline-block' : 'none';
+        window.goSearchMemos(query); // GoがjsDisplaySearchResultsを呼ぶ
     }
-
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') performSearch();
     });
     searchInput.addEventListener('input', () => {
         clearSearchButton.style.display = searchInput.value ? 'inline-block' : 'none';
+        if (!searchInput.value) { // 検索語がクリアされたら結果も隠す
+            searchResultsArea.innerHTML = '';
+            searchExportArea.style.display = 'none';
+            currentSearchResults = [];
+        }
     });
-
     clearSearchButton.addEventListener('click', () => {
         searchInput.value = '';
-        searchResultsArea.innerHTML = ''; // Clear results area
+        searchResultsArea.innerHTML = '';
         clearSearchButton.style.display = 'none';
+        searchExportArea.style.display = 'none';
+        currentSearchResults = [];
         searchInput.focus();
     });
 
-    window.jsDisplaySearchResults = (results, message) => { // Exposed to Go
-        searchResultsArea.innerHTML = ''; // Clear previous results or messages
+    // goSearchMemosから呼び出される
+    window.jsDisplaySearchResults = (resultsArray, message, resultsJsonString) => {
+        searchResultsArea.innerHTML = ''; 
         if (message) {
             searchResultsArea.innerHTML = `<p class="message">${message}</p>`;
-        } else if (results && results.length > 0) {
-            renderMemos(results, searchResultsArea); // Reuse renderMemos
+            searchExportArea.style.display = 'none';
+            currentSearchResults = [];
+        } else if (resultsArray && resultsArray.length > 0) {
+            renderMemos(resultsArray, searchResultsArea);
+            searchExportArea.style.display = 'block'; // エクスポートボタン表示
+            try {
+                 currentSearchResults = JSON.parse(resultsJsonString); // Goから渡されたJSON文字列をパースして保持
+            } catch(e) {
+                console.error("Failed to parse search results JSON:", e);
+                currentSearchResults = []; // パース失敗時は空に
+                 searchExportArea.style.display = 'none';
+            }
+        } else { // No message, no results (e.g. search cleared)
+            searchExportArea.style.display = 'none';
+            currentSearchResults = [];
         }
-        // If no message and no results, area remains empty (covered by Go's logic for "not found")
     };
 
+    exportSearchResultButton.addEventListener('click', () => {
+        if (currentSearchResults && currentSearchResults.length > 0) {
+            const format = exportFormatSelect.value; // データ管理ビューの選択形式を利用
+            const memosJson = JSON.stringify(currentSearchResults);
+            window.goExportFormattedData(format, memosJson);
+        } else {
+            alert('エクスポートする検索結果がありません。');
+        }
+    });
+
+
     // --- Data Management View ---
-    exportDataButton.addEventListener('click', () => {
-        window.goExportData();
+    exportBackupButton.addEventListener('click', () => { // 旧 exportDataButton
+        window.goExportBackupData(); // Gobバックアップ専用関数を呼ぶ
     });
 
     importFile.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
-            if (!file.name.endsWith('.db')) {
-                alert('無効なファイル形式です。.dbファイルを選択してください。');
-                importFile.value = ''; // Reset file input
+            if (!file.name.endsWith('.data')) {
+                alert('無効なファイル形式です。.dataファイルを選択してください。');
+                importFile.value = '';
                 return;
             }
             const reader = new FileReader();
@@ -315,10 +327,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.readAsDataURL(file);
         }
     });
+
+    exportFormattedDataButton.addEventListener('click', () => {
+        const format = exportFormatSelect.value;
+        window.goExportFormattedData(format, "all"); // "all" を渡して全件エクスポート
+    });
     
-    window.jsTriggerFileDownload = (filename, mimeType, base64Data) => { // Exposed to Go
+    // Data Guide Modal Logic
+    showDataGuideButton.addEventListener('click', () => {
+        dataGuideModal.style.display = 'block';
+    });
+    closeDataGuideModal.addEventListener('click', () => {
+        dataGuideModal.style.display = 'none';
+    });
+    understandDataGuideButton.addEventListener('click', () => {
+        dataGuideModal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => { // Modal外クリックで閉じる
+        if (event.target == dataGuideModal) {
+            dataGuideModal.style.display = 'none';
+        }
+    });
+    
+    // JS helper for Go to trigger downloads (変更なし)
+    window.jsTriggerFileDownload = (filename, mimeType, base64Data) => {
         try {
-            const byteCharacters = atob(base64Data);
+            const byteCharacters = atob(base64Data); // Base64デコード
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -333,15 +367,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
-            alert(`「${filename}」をエクスポートしました。`);
+            // alert(`「${filename}」をエクスポートしました。`); // Go側でアラートを出す場合は不要
         } catch (e) {
             console.error("File download error:", e);
             alert("ファイルのエクスポートに失敗しました。");
         }
     };
 
-    // --- Global JS functions callable from Go (defined with window.) ---
-    // window.jsAlert = (message) => alert(message); // Go can call global alert directly
     window.jsShowView = (viewName) => { showView(viewName); };
 
     // --- Initial App Load ---
@@ -349,7 +381,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.goInitializeApp();
     } else {
         console.error("goInitializeApp is not defined. WASM might not be ready or failed to expose function.");
-        alert("アプリケーションの初期化に失敗しました。");
+        // このアラートはWASMロード失敗時にも出る可能性がある
+        // alert("アプリケーションの初期化に失敗しました。"); 
     }
-    showView('record'); // Set initial view and active nav icon
+    showView('record'); 
 });

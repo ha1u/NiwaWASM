@@ -18,6 +18,11 @@
             <button id="navDataIcon" class="nav-icon" title="データ管理ビュー">💾</button>
         </nav>
         <div class="header-right">
+             <a href="https://github.com/ha1u/NiwaWASM" target="_blank" rel="noopener noreferrer" title="GitHub Repository" class="header-icon github-link">
+                <svg viewBox="0 0 16 16" version="1.1" width="24" height="24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
             <button id="themeToggleIcon" class="theme-icon" title="テーマ切り替え">🌙</button>
         </div>
     </header>
@@ -43,19 +48,98 @@
             </div>
             <div id="searchResultsArea">
                 </div>
+            <div id="searchExportArea" style="display: none; margin-top:15px;">
+                 <button id="exportSearchResultButton">この検索結果をエクスポート</button>
+            </div>
         </div>
 
         <div id="dataView" class="view-content">
+            <h2>データバックアップ・復元</h2>
             <div class="data-actions">
-                <button id="exportDataButton">全記録をエクスポート (.db)</button>
+                <button id="exportBackupButton">全記録をバックアップ (.data)</button>
+                 <p class="action-note">アプリケーションの全記録を専用形式で保存します。復元時に使用します。</p>
             </div>
             <div class="data-actions">
-                <label for="importFile">バックアップからインポート (.db):</label>
-                <input type="file" id="importFile" accept=".db">
+                <label for="importFile">バックアップから復元 (.data):</label>
+                <input type="file" id="importFile" accept=".data">
+                <p class="import-note">※ 復元を行うと、現在の記録はすべて置き換えられます。</p>
             </div>
-             <p class="import-note">※ インポートを行うと、現在の記録はすべて置き換えられます。</p>
+
+            <hr class="section-divider">
+
+            <h2>記録データのエクスポート（分析用）</h2>
+            <div class="data-actions">
+                <label for="exportFormatSelect">エクスポート形式:</label>
+                <select id="exportFormatSelect">
+                    <option value="txt">プレーンテキスト (.txt)</option>
+                    <option value="md">Markdown (.md)</option>
+                </select>
+            </div>
+            <div class="data-actions">
+                 <button id="exportFormattedDataButton">全記録を選択形式でエクスポート</button>
+                 <p class="action-note">全記録をテキストエディタや外部AIツールで読みやすい形式で保存します。</p>
+            </div>
+            
+            <hr class="section-divider">
+
+            <h2>データ活用ガイド</h2>
+            <div class="data-actions">
+                <button id="showDataGuideButton">データ活用ガイドを表示</button>
+            </div>
         </div>
     </main>
+
+    <div id="dataGuideModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeDataGuideModal">&times;</span>
+            <h2>データ活用ガイド</h2>
+            <p>エクスポートした記録データ（.txt や .md ファイル）は、様々なAIツールで活用できます。</p>
+            
+            <h3>活用例:</h3>
+            <ul>
+                <li><strong>Gemini (ウェブサイト: <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">gemini.google.com</a>)</strong>
+                    <ul>
+                        <li>エクスポートしたテキストファイルの内容をコピーし、Geminiのチャットに貼り付けて質問します。</li>
+                        <li>例:
+                            <ul>
+                                <li>「この日記全体を3行で要約して」</li>
+                                <li>「過去1ヶ月で私が感じていた主な感情は何ですか？」</li>
+                                <li>「[特定のテーマ]について、私はどんな意見を持っていますか？」</li>
+                                <li>「この期間の出来事から、私に何かアドバイスはありますか？」</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>NotebookLM (ウェブサイト: <a href="https://notebooklm.google.com/" target="_blank" rel="noopener noreferrer">notebooklm.google.com</a>)</strong>
+                    <ul>
+                        <li>エクスポートしたMarkdown (.md) またはテキスト (.txt) ファイルをNotebookLMに「ソース」としてアップロードします。</li>
+                        <li>アップロードした記録を元に、NotebookLMが質問に答えたり、アイデアを整理する手助けをしてくれます。</li>
+                        <li>例:
+                            <ul>
+                                <li>「〇〇というプロジェクトについて書いた箇所を全て教えて」</li>
+                                <li>「私の記録の中で、□□に関する考察をまとめて」</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>その他のテキスト分析ツールやAIチャットボット</strong>
+                    <ul>
+                        <li>多くのAIツールはテキストデータの入力を受け付けます。エクスポートしたデータを活用して、自己分析やアイデア発想にお役立てください。</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3><span class="warning-icon">⚠️</span> プライバシーに関するご注意:</h3>
+            <p>
+                外部のAIツールにあなたの記録データを入力する際は、各ツールのプライバシーポリシーや利用規約を必ず確認してください。
+                特に機密性の高い個人情報やプライベートな内容を含む記録の取り扱いには十分ご注意ください。
+                「庭WASM」アプリケーション自体はあなたのデータを外部に送信しませんが、あなたがエクスポートして外部ツールに入力したデータはそのツールの管理下に置かれます。
+            </p>
+            <p style="text-align: center; margin-top: 20px;">
+                <button id="understandDataGuideButton">理解しました</button>
+            </p>
+        </div>
+    </div>
 
     <script src="wasm_exec.js"></script>
     <script src="script.js"></script>

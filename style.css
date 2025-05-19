@@ -12,19 +12,27 @@
     --kebab-shadow-light: 0 2px 10px rgba(0,0,0,0.1);
     --kebab-item-hover-bg-light: #f1f1f1;
     --message-text-light: #6c757d;
+    --modal-bg-light: rgba(0,0,0,0.4);
+    --modal-content-bg-light: #fefefe;
+    --warning-color-light: #dc3545;
+
 
     --primary-bg-dark: #0d1117;
     --primary-text-dark: #c9d1d9;
     --secondary-bg-dark: #161b22;
     --border-color-dark: #30363d;
     --accent-color-dark: #2f81f7; /* Brighter blue for dark mode */
-    --accent-text-dark: #ffffff;
+    --accent-text-dark: #ffffff; /* Kept white for better contrast on blue */
     --link-color-dark: #58a6ff;
     --icon-hover-bg-dark: #21262d;
     --kebab-bg-dark: #1c2128;
     --kebab-shadow-dark: 0 2px 10px rgba(0,0,0,0.3);
     --kebab-item-hover-bg-dark: #22272e;
     --message-text-dark: #8b949e;
+    --modal-bg-dark: rgba(0,0,0,0.6);
+    --modal-content-bg-dark: #1e2329; 
+    --warning-color-dark: #f85149;
+
 
     --header-height: 60px;
 }
@@ -96,27 +104,45 @@ body.dark-mode .header-center .nav-icon.active {
     background-color: var(--icon-hover-bg-dark);
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* アイコン間のスペース */
+}
 
-.theme-icon {
-    font-size: 1.5em;
+.header-icon { /* GitHubリンクやテーマアイコン共通 */
+    font-size: 1.5em; /* For theme icon */
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-    border-radius: 50%; /* More circular */
+    border-radius: 50%;
     color: var(--primary-text-light);
     transition: background-color 0.2s;
-    line-height: 1; /* Align icon better */
+    line-height: 1; 
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
 }
-body.dark-mode .theme-icon {
+.github-link { /* GitHub icon specific size if needed, or use general .header-icon */
+    padding: 6px; /* Adjust padding for SVG if needed */
+}
+.github-link svg {
+    width: 24px; /* Explicit size for SVG */
+    height: 24px;
+    fill: currentColor; 
+}
+
+body.dark-mode .header-icon {
     color: var(--primary-text-dark);
 }
-.theme-icon:hover {
+.header-icon:hover {
     background-color: var(--icon-hover-bg-light);
 }
-body.dark-mode .theme-icon:hover {
+body.dark-mode .header-icon:hover {
     background-color: var(--icon-hover-bg-dark);
 }
+
 
 /* Main Content */
 #mainContent {
@@ -181,7 +207,11 @@ body.dark-mode #memoContent:focus {
 #saveMemoButton,
 #searchButton,
 #clearSearchButton,
-#exportDataButton {
+#exportBackupButton, /* Renamed */
+#exportFormattedDataButton,
+#showDataGuideButton,
+#understandDataGuideButton,
+#searchExportArea button { /* Common style for action buttons */
     background-color: var(--accent-color-light);
     color: var(--accent-text-light);
     border: none;
@@ -191,16 +221,29 @@ body.dark-mode #memoContent:focus {
     font-size: 1em;
     font-weight: 500;
     transition: background-color 0.2s, opacity 0.2s;
-    align-self: flex-start; /* For input-area flex */
 }
+
+#saveMemoButton { /* Specific alignment if needed */
+   align-self: flex-start; 
+}
+
+
 body.dark-mode #saveMemoButton,
 body.dark-mode #searchButton,
-body.dark-mode #exportDataButton {
+body.dark-mode #exportBackupButton,
+body.dark-mode #exportFormattedDataButton,
+body.dark-mode #showDataGuideButton,
+body.dark-mode #understandDataGuideButton,
+body.dark-mode #searchExportArea button {
     background-color: var(--accent-color-dark);
-    color: var(--accent-text-dark); /* Ensure contrast for dark mode */
+    color: var(--accent-text-dark); 
+}
+
+#clearSearchButton { /* Specific color for clear button */
+    background-color: #6c757d; 
 }
 body.dark-mode #clearSearchButton {
-    background-color: #484f58; /* Darker grey for dark mode clear */
+    background-color: #484f58;
     color: var(--primary-text-dark);
 }
 
@@ -208,7 +251,11 @@ body.dark-mode #clearSearchButton {
 #saveMemoButton:hover,
 #searchButton:hover,
 #clearSearchButton:hover,
-#exportDataButton:hover {
+#exportBackupButton:hover,
+#exportFormattedDataButton:hover,
+#showDataGuideButton:hover,
+#understandDataGuideButton:hover,
+#searchExportArea button:hover {
     opacity: 0.85;
 }
 
@@ -232,8 +279,8 @@ body.dark-mode #recordViewListTitle {
     margin-bottom: 15px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    position: relative; /* For kebab menu positioning */
-    overflow-wrap: break-word; /* Ensure long words break */
+    position: relative; 
+    overflow-wrap: break-word; 
 }
 body.dark-mode #recordDisplayArea .memo-item,
 body.dark-mode #searchResultsArea .memo-item {
@@ -243,8 +290,8 @@ body.dark-mode #searchResultsArea .memo-item {
 }
 
 .memo-item-content {
-    white-space: pre-wrap; /* Preserve line breaks */
-    margin-bottom: 30px; /* Space for timestamp and kebab */
+    white-space: pre-wrap; 
+    margin-bottom: 30px; 
 }
 .memo-item-content a {
     color: var(--link-color-light);
@@ -274,7 +321,7 @@ body.dark-mode .memo-item-timestamp {
     right: 15px;
     background: none;
     border: none;
-    font-size: 1.4em; /* Slightly larger */
+    font-size: 1.4em; 
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
@@ -370,13 +417,14 @@ body.dark-mode #searchInput:focus {
     box-shadow: 0 0 0 0.2rem rgba(88,166,255,.25);
 }
 
-#clearSearchButton {
-    background-color: #6c757d; /* Grey */
+#searchExportArea button { /* Already covered by common button style */
+    font-size: 0.9em; /* slightly smaller */
+    padding: 8px 15px;
 }
 
 
 #searchResultsArea .message,
-#recordDisplayArea .message { /* Shared message style */
+#recordDisplayArea .message { 
     color: var(--message-text-light);
     text-align: center;
     padding: 30px 20px;
@@ -389,34 +437,178 @@ body.dark-mode #recordDisplayArea .message {
 
 
 /* Data Management View */
+#dataView h2 { /* Add some margin to data view section titles */
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+#dataView h2:first-of-type { /* First h2 has less top margin */
+    margin-top: 5px;
+}
+
+
 .data-actions {
     margin-bottom: 25px;
+    padding-bottom: 5px; /* Reduced padding as divider is used */
 }
+
+.section-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--border-color-light);
+    margin: 25px 0;
+}
+body.dark-mode .section-divider {
+    background-color: var(--border-color-dark);
+}
+
+
 .data-actions label {
-    display: block;
-    margin-bottom: 8px;
+    display: inline-block; 
+    margin-right: 10px;
     font-weight: 500;
+    vertical-align: middle;
 }
+#exportFormatSelect,
 #importFile {
-    display: block;
-    font-size: 0.95em;
     padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid var(--border-color-light);
     background-color: var(--secondary-bg-light);
     color: var(--primary-text-light);
+    font-size: 0.95em;
+    vertical-align: middle;
     cursor: pointer;
 }
+body.dark-mode #exportFormatSelect,
 body.dark-mode #importFile {
-    border: 1px solid var(--border-color-dark);
+    border-color: var(--border-color-dark);
     background-color: var(--secondary-bg-dark);
     color: var(--primary-text-dark);
 }
-.import-note {
-    font-size: 0.9em;
-    color: var(--message-text-light);
-    margin-top: 10px;
+#importFile {
+    display: inline-block; /* Match select style */
+    width: auto; /* Allow natural width */
 }
+
+
+.action-note,
+.import-note { /* Combined common note style */
+    font-size: 0.85em;
+    color: var(--message-text-light);
+    margin-top: 8px;
+    /* margin-left: 5px; */ /* Removed for block display */
+    display: block; /* Make it take full width for better readability */
+}
+body.dark-mode .action-note,
 body.dark-mode .import-note {
-     color: var(--message-text-dark);
+    color: var(--message-text-dark);
+}
+
+
+/* Data Guide Modal */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1001; 
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
+    background-color: var(--modal-bg-light);
+}
+body.dark-mode .modal {
+    background-color: var(--modal-bg-dark);
+}
+
+.modal-content {
+    background-color: var(--modal-content-bg-light);
+    color: var(--primary-text-light);
+    margin: 8% auto; /* Slightly less top margin */
+    padding: 25px 30px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    width: 85%; /* Slightly wider for more content */
+    max-width: 750px; /* Max width */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: relative;
+}
+body.dark-mode .modal-content {
+    background-color: var(--modal-content-bg-dark);
+    color: var(--primary-text-dark);
+    border-color: var(--border-color-dark);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+body.dark-mode .modal-content h2 {
+    border-bottom-color: var(--border-color-dark);
+}
+.modal-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+.modal-content ul {
+    padding-left: 20px;
+    list-style-type: disc;
+}
+.modal-content ul ul {
+    margin-top: 5px;
+    list-style-type: circle;
+}
+.modal-content li {
+    margin-bottom: 8px;
+}
+.modal-content a {
+    color: var(--link-color-light);
+    text-decoration: underline;
+}
+.modal-content a:hover {
+    text-decoration: none;
+}
+body.dark-mode .modal-content a {
+    color: var(--link-color-dark);
+}
+
+.close-button {
+    color: #aaa;
+    /* float: right; */ /* Using absolute positioning now */
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px; /* Adjusted */
+    right: 20px;
+}
+.close-button:hover,
+.close-button:focus {
+    color: var(--primary-text-light);
+    text-decoration: none;
+    cursor: pointer;
+}
+body.dark-mode .close-button:hover,
+body.dark-mode .close-button:focus {
+     color: var(--primary-text-dark);
+}
+.warning-icon {
+    color: var(--warning-color-light);
+    font-weight: bold;
+    font-size: 1.1em; /* Make icon slightly larger */
+    margin-right: 5px;
+}
+body.dark-mode .warning-icon {
+    color: var(--warning-color-dark);
+}
+#understandDataGuideButton { /* Already covered by common button style */
+    margin-top: 10px; /* Add some space above */
+    display: block; /* Center it */
+    margin-left: auto;
+    margin-right: auto;
 }

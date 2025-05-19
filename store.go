@@ -8,22 +8,19 @@ import (
 	"time"
 )
 
-// loadMemosFromLocalStorage はローカルストレージからメモをロードします。
 func loadMemosFromLocalStorage() ([]Memo, error) {
 	data := js.Global().Get("localStorage").Call("getItem", localStorageKey).String()
-	if data == "" || data == "null" { // "null" 文字列もチェック
+	// "null" 文字列や空文字列の場合、DecodeGobToMemos は []Memo{}, nil を返すことを期待
+	if data == "null" { // 明示的に "null" 文字列の場合は空として扱う
 		return []Memo{}, nil
 	}
-	memos, err := DecodeGobToMemos(data)
-	if err != nil {
-		ConsoleLog("Error decoding memos from local storage: " + err.Error() + ". Returning empty list.")
-		// データが破損している可能性があるため、空のリストを返し、エラーをログに記録
-		return []Memo{}, fmt.Errorf("failed to decode memos: %w", err)
-	}
-	return memos, nil
+	// dataが空文字列の場合もDecodeGobToMemosに渡して処理させる (Base64デコードでエラーになるか、空データとして扱われる)
+	// DecodeGobToMemosでデータが空の場合の処理が追加されているので、ここで特別に "" をチェックする必要は薄いが、
+	// 念のため、非常に短い無効なBase64文字列を渡さないようにする。
+	// しかし、 "" は有効な入力として DecodeString に渡せる。
+	return DecodeGobToMemos(data)
 }
 
-// saveMemosToLocalStorage はメモをローカルストレージに保存します。
 func saveMemosToLocalStorage(memos []Memo) error {
 	encodedData, err := EncodeMemosToGob(memos)
 	if err != nil {
@@ -33,25 +30,22 @@ func saveMemosToLocalStorage(memos []Memo) error {
 	return nil
 }
 
-// addMemo は新しいメモを追加し、更新されたメモリストを返します。
 func addMemo(content string) ([]Memo, error) {
 	memos, err := loadMemosFromLocalStorage()
 	if err != nil {
+		// このエラーは深刻な破損の場合のみ発生するはず (EOF以外)
 		ConsoleLog("Error loading memos for add, potentially corrupted. Attempting to use fresh list: " + err.Error())
-		// エラーがあっても、新しい空のリストで続行を試みる
 		memos = []Memo{}
 	}
 
 	newMemo := Memo{
-		ID:        fmt.Sprintf("%d", time.Now().UnixNano()), // Unixナノ秒をIDとして使用
+		ID:        fmt.Sprintf("%d", time.Now().UnixNano()),
 		Content:   content,
 		CreatedAt: time.Now(),
 	}
-
-	memos = append([]Memo{newMemo}, memos...) // 新しいメモを先頭に追加
-
+	memos = append([]Memo{newMemo}, memos...)
 	sort.SliceStable(memos, func(i, j int) bool {
-		return memos[i].CreatedAt.After(memos[j].CreatedAt) // 降順ソート
+		return memos[i].CreatedAt.After(memos[j].CreatedAt)
 	})
 
 	if err := saveMemosToLocalStorage(memos); err != nil {
@@ -60,12 +54,12 @@ func addMemo(content string) ([]Memo, error) {
 	return memos, nil
 }
 
-// getAllMemos は全てのメモを取得します（降順ソート済み）。
 func getAllMemos() ([]Memo, error) {
 	memos, err := loadMemosFromLocalStorage()
 	if err != nil {
-		ConsoleLog("Error loading all memos: " + err.Error())
-		return []Memo{}, err // エラー時は空のスライスとエラーを返す
+		// 通常、localStorageが空か破損していない限り、深刻なエラーのみがここに到達する。
+		ConsoleLog("Error loading all memos in getAllMemos: " + err.Error())
+		return []Memo{}, err
 	}
 	sort.SliceStable(memos, func(i, j int) bool {
 		return memos[i].CreatedAt.After(memos[j].CreatedAt)
@@ -73,13 +67,11 @@ func getAllMemos() ([]Memo, error) {
 	return memos, nil
 }
 
-// deleteMemoByID は指定されたIDのメモを削除します。
 func deleteMemoByID(id string) ([]Memo, error) {
 	memos, err := loadMemosFromLocalStorage()
 	if err != nil {
 		return nil, err
 	}
-
 	var updatedMemos []Memo
 	found := false
 	for _, memo := range memos {
@@ -89,29 +81,24 @@ func deleteMemoByID(id string) ([]Memo, error) {
 			found = true
 		}
 	}
-
 	if !found {
 		ConsoleLog("Memo with ID " + id + " not found for deletion.")
-		return memos, nil // 見つからなければ元のリストを返す
+		return memos, nil
 	}
-
 	if err := saveMemosToLocalStorage(updatedMemos); err != nil {
 		return nil, err
 	}
 	return updatedMemos, nil
 }
 
-// searchMemosByKeyword はキーワードでメモを検索します（大文字小文字区別なしの部分一致）。
 func searchMemosByKeyword(query string) ([]Memo, error) {
 	memos, err := loadMemosFromLocalStorage()
 	if err != nil {
 		return nil, err
 	}
-
 	if strings.TrimSpace(query) == "" {
-		return []Memo{}, nil // クエリが空なら空の結果を返す
+		return []Memo{}, nil
 	}
-
 	var results []Memo
 	lowerQuery := strings.ToLower(query)
 	for _, memo := range memos {
@@ -120,12 +107,11 @@ func searchMemosByKeyword(query string) ([]Memo, error) {
 		}
 	}
 	sort.SliceStable(results, func(i, j int) bool {
-		return results[i].CreatedAt.After(results[j].CreatedAt) // 結果も降順ソート
+		return results[i].CreatedAt.After(results[j].CreatedAt)
 	})
 	return results, nil
 }
 
-// getMemoByID は指定されたIDのメモを取得します。
 func getMemoByID(id string) (*Memo, error) {
 	memos, err := loadMemosFromLocalStorage()
 	if err != nil {
