@@ -1,13 +1,11 @@
+main.wasm
 *.exe
-*.exe~
+*.test
 *.dll
 *.so
 *.dylib
-*.test
 *.out
 go.work
 go.work.sum
 .env
 Makefile
-*.wasm
-*.js
