@@ -1,0 +1,52 @@
+name: Deploy NiwaWASM to GitHub Pages
+
+  on:
+    push:
+      branches:
+        - main # mainブランチへのpush時に実行
+    workflow_dispatch: # GitHubのActionsタブから手動実行も可能にする
+
+  # 同時デプロイを1つに制限し、進行中のデプロイがあればキャンセル
+  concurrency:
+    group: "pages"
+    cancel-in-progress: true
+
+  jobs:
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4 # リポジトリのコードをチェックアウト
+
+        - name: Set up Go
+          uses: actions/setup-go@v5 # Go環境をセットアップ
+          with:
+            go-version: '1.24' # プロジェクトで使用しているGoのバージョンに合わせてください
+
+        - name: Build WASM application
+          run: GOOS=js GOARCH=wasm go build -o main.wasm . # WASMファイルをビルド
+
+        - name: Setup Pages
+          id: pages
+          uses: actions/configure-pages@v5 # GitHub Pagesの設定を構成
+
+        - name: Upload artifact
+          uses: actions/upload-pages-artifact@v3 # ビルド成果物をアップロード
+          with:
+            # プロジェクトルートにある静的ファイル全てをアーティファクトとしてアップロード
+            # これには index.html, style.css, script.js, main.wasm, wasm_exec.js が含まれます
+            path: '.'
+
+    deploy:
+      needs: build # buildジョブの完了後に実行
+      permissions:
+        pages: write      # GitHub Pagesへのデプロイ権限
+        id-token: write   # OIDCトークンを使用した認証のため
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }} # デプロイ先のURLを出力
+      runs-on: ubuntu-latest
+      steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4 # GitHub Pagesへデプロイ
