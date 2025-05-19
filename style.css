@@ -1,0 +1,422 @@
+/* style.css */
+:root {
+    --primary-bg-light: #f8f9fa;
+    --primary-text-light: #212529;
+    --secondary-bg-light: #ffffff;
+    --border-color-light: #dee2e6;
+    --accent-color-light: #007bff;
+    --accent-text-light: #ffffff;
+    --link-color-light: #0056b3;
+    --icon-hover-bg-light: #e9ecef;
+    --kebab-bg-light: #fff;
+    --kebab-shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+    --kebab-item-hover-bg-light: #f1f1f1;
+    --message-text-light: #6c757d;
+
+    --primary-bg-dark: #0d1117;
+    --primary-text-dark: #c9d1d9;
+    --secondary-bg-dark: #161b22;
+    --border-color-dark: #30363d;
+    --accent-color-dark: #2f81f7; /* Brighter blue for dark mode */
+    --accent-text-dark: #ffffff;
+    --link-color-dark: #58a6ff;
+    --icon-hover-bg-dark: #21262d;
+    --kebab-bg-dark: #1c2128;
+    --kebab-shadow-dark: 0 2px 10px rgba(0,0,0,0.3);
+    --kebab-item-hover-bg-dark: #22272e;
+    --message-text-dark: #8b949e;
+
+    --header-height: 60px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0;
+    padding-top: var(--header-height); /* Header height */
+    background-color: var(--primary-bg-light);
+    color: var(--primary-text-light);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+}
+
+body.dark-mode {
+    background-color: var(--primary-bg-dark);
+    color: var(--primary-text-dark);
+}
+
+/* Header */
+#appHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: var(--secondary-bg-light);
+    border-bottom: 1px solid var(--border-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+body.dark-mode #appHeader {
+    background-color: var(--secondary-bg-dark);
+    border-bottom: 1px solid var(--border-color-dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#appName {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.header-center .nav-icon {
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin: 0 5px;
+    border-radius: 4px;
+    color: var(--primary-text-light);
+    opacity: 0.7;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+body.dark-mode .header-center .nav-icon {
+    color: var(--primary-text-dark);
+}
+.header-center .nav-icon:hover,
+.header-center .nav-icon.active {
+    background-color: var(--icon-hover-bg-light);
+    opacity: 1;
+}
+body.dark-mode .header-center .nav-icon:hover,
+body.dark-mode .header-center .nav-icon.active {
+    background-color: var(--icon-hover-bg-dark);
+}
+
+
+.theme-icon {
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%; /* More circular */
+    color: var(--primary-text-light);
+    transition: background-color 0.2s;
+    line-height: 1; /* Align icon better */
+}
+body.dark-mode .theme-icon {
+    color: var(--primary-text-dark);
+}
+.theme-icon:hover {
+    background-color: var(--icon-hover-bg-light);
+}
+body.dark-mode .theme-icon:hover {
+    background-color: var(--icon-hover-bg-dark);
+}
+
+/* Main Content */
+#mainContent {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#viewTitle {
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 10px;
+    font-size: 1.8em;
+}
+body.dark-mode #viewTitle {
+    border-bottom: 1px solid var(--border-color-dark);
+}
+
+.view-content {
+    display: none;
+}
+.view-content.active-view {
+    display: block;
+}
+
+/* Record View */
+.input-area {
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+}
+#memoContent {
+    width: 100%; 
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 6px;
+    font-size: 1em;
+    background-color: var(--secondary-bg-light);
+    color: var(--primary-text-light);
+    min-height: 90px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+body.dark-mode #memoContent {
+    background-color: var(--secondary-bg-dark);
+    color: var(--primary-text-dark);
+    border: 1px solid var(--border-color-dark);
+}
+#memoContent:focus {
+    outline: none;
+    border-color: var(--accent-color-light);
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+body.dark-mode #memoContent:focus {
+    border-color: var(--accent-color-dark);
+    box-shadow: 0 0 0 0.2rem rgba(88,166,255,.25);
+}
+
+
+#saveMemoButton,
+#searchButton,
+#clearSearchButton,
+#exportDataButton {
+    background-color: var(--accent-color-light);
+    color: var(--accent-text-light);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s, opacity 0.2s;
+    align-self: flex-start; /* For input-area flex */
+}
+body.dark-mode #saveMemoButton,
+body.dark-mode #searchButton,
+body.dark-mode #exportDataButton {
+    background-color: var(--accent-color-dark);
+    color: var(--accent-text-dark); /* Ensure contrast for dark mode */
+}
+body.dark-mode #clearSearchButton {
+    background-color: #484f58; /* Darker grey for dark mode clear */
+    color: var(--primary-text-dark);
+}
+
+
+#saveMemoButton:hover,
+#searchButton:hover,
+#clearSearchButton:hover,
+#exportDataButton:hover {
+    opacity: 0.85;
+}
+
+
+#recordViewListTitle {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    color: var(--primary-text-light);
+}
+body.dark-mode #recordViewListTitle {
+    color: var(--primary-text-dark);
+}
+
+
+#recordDisplayArea .memo-item,
+#searchResultsArea .memo-item {
+    background-color: var(--secondary-bg-light);
+    border: 1px solid var(--border-color-light);
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: relative; /* For kebab menu positioning */
+    overflow-wrap: break-word; /* Ensure long words break */
+}
+body.dark-mode #recordDisplayArea .memo-item,
+body.dark-mode #searchResultsArea .memo-item {
+    background-color: var(--secondary-bg-dark);
+    border: 1px solid var(--border-color-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.memo-item-content {
+    white-space: pre-wrap; /* Preserve line breaks */
+    margin-bottom: 30px; /* Space for timestamp and kebab */
+}
+.memo-item-content a {
+    color: var(--link-color-light);
+    text-decoration: underline;
+}
+.memo-item-content a:hover {
+    text-decoration: none;
+}
+body.dark-mode .memo-item-content a {
+    color: var(--link-color-dark);
+}
+
+.memo-item-timestamp {
+    font-size: 0.8em;
+    color: #6c757d;
+    position: absolute;
+    bottom: 12px;
+    left: 20px;
+}
+body.dark-mode .memo-item-timestamp {
+    color: #8b949e;
+}
+
+.kebab-menu-button {
+    position: absolute;
+    bottom: 8px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.4em; /* Slightly larger */
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    color: var(--primary-text-light);
+    line-height: 1;
+}
+body.dark-mode .kebab-menu-button {
+    color: var(--primary-text-dark);
+}
+.kebab-menu-button:hover {
+    background-color: var(--icon-hover-bg-light);
+}
+body.dark-mode .kebab-menu-button:hover {
+    background-color: var(--icon-hover-bg-dark);
+}
+
+.kebab-menu {
+    display: none;
+    position: absolute;
+    right: 10px; 
+    bottom: 40px; 
+    background-color: var(--kebab-bg-light);
+    border: 1px solid var(--border-color-light);
+    border-radius: 6px;
+    box-shadow: var(--kebab-shadow-light);
+    z-index: 100;
+    min-width: 130px;
+    padding: 5px 0;
+}
+body.dark-mode .kebab-menu {
+    background-color: var(--kebab-bg-dark);
+    border: 1px solid var(--border-color-dark);
+    box-shadow: var(--kebab-shadow-dark);
+}
+
+.kebab-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.kebab-menu li button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95em;
+    color: var(--primary-text-light);
+    transition: background-color 0.1s;
+}
+body.dark-mode .kebab-menu li button {
+    color: var(--primary-text-dark);
+}
+
+.kebab-menu li button:hover {
+    background-color: var(--kebab-item-hover-bg-light);
+}
+body.dark-mode .kebab-menu li button:hover {
+    background-color: var(--kebab-item-hover-bg-dark);
+}
+
+
+/* Search View */
+.search-input-area {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+#searchInput {
+    flex-grow: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 6px;
+    font-size: 1em;
+    background-color: var(--secondary-bg-light);
+    color: var(--primary-text-light);
+}
+body.dark-mode #searchInput {
+    background-color: var(--secondary-bg-dark);
+    color: var(--primary-text-dark);
+    border: 1px solid var(--border-color-dark);
+}
+#searchInput:focus {
+    outline: none;
+    border-color: var(--accent-color-light);
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+body.dark-mode #searchInput:focus {
+    border-color: var(--accent-color-dark);
+    box-shadow: 0 0 0 0.2rem rgba(88,166,255,.25);
+}
+
+#clearSearchButton {
+    background-color: #6c757d; /* Grey */
+}
+
+
+#searchResultsArea .message,
+#recordDisplayArea .message { /* Shared message style */
+    color: var(--message-text-light);
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 1.1em;
+}
+body.dark-mode #searchResultsArea .message,
+body.dark-mode #recordDisplayArea .message {
+    color: var(--message-text-dark);
+}
+
+
+/* Data Management View */
+.data-actions {
+    margin-bottom: 25px;
+}
+.data-actions label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+#importFile {
+    display: block;
+    font-size: 0.95em;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color-light);
+    background-color: var(--secondary-bg-light);
+    color: var(--primary-text-light);
+    cursor: pointer;
+}
+body.dark-mode #importFile {
+    border: 1px solid var(--border-color-dark);
+    background-color: var(--secondary-bg-dark);
+    color: var(--primary-text-dark);
+}
+.import-note {
+    font-size: 0.9em;
+    color: var(--message-text-light);
+    margin-top: 10px;
+}
+body.dark-mode .import-note {
+     color: var(--message-text-dark);
+}

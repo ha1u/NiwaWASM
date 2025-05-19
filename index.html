@@ -1,26 +1,63 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>庭WASM</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪴</text></svg>">
+</head>
+<body>
+    <header id="appHeader">
+        <div class="header-left">
+            <span id="appName">庭WASM</span>
+        </div>
+        <nav class="header-center">
+            <button id="navRecordIcon" class="nav-icon" title="記録ビュー">📝</button>
+            <button id="navSearchIcon" class="nav-icon" title="検索ビュー">🔍</button>
+            <button id="navDataIcon" class="nav-icon" title="データ管理ビュー">💾</button>
+        </nav>
+        <div class="header-right">
+            <button id="themeToggleIcon" class="theme-icon" title="テーマ切り替え">🌙</button>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <h1 id="viewTitle">記録ビュー</h1>
+
+        <div id="recordView" class="view-content active-view">
+            <div class="input-area">
+                <textarea id="memoContent" placeholder="ここに日々の出来事や考えを記録..." rows="5"></textarea>
+                <button id="saveMemoButton">記録する</button>
+            </div>
+            <h2 id="recordViewListTitle" style="display: none;">記録一覧</h2>
+            <div id="recordDisplayArea">
+                </div>
+        </div>
+
+        <div id="searchView" class="view-content">
+            <div class="search-input-area">
+                <input type="search" id="searchInput" placeholder="キーワード検索">
+                <button id="searchButton">検索</button>
+                <button id="clearSearchButton" style="display: none;">クリア</button>
+            </div>
+            <div id="searchResultsArea">
+                </div>
+        </div>
+
+        <div id="dataView" class="view-content">
+            <div class="data-actions">
+                <button id="exportDataButton">全記録をエクスポート (.db)</button>
+            </div>
+            <div class="data-actions">
+                <label for="importFile">バックアップからインポート (.db):</label>
+                <input type="file" id="importFile" accept=".db">
+            </div>
+             <p class="import-note">※ インポートを行うと、現在の記録はすべて置き換えられます。</p>
+        </div>
+    </main>
+
     <script src="wasm_exec.js"></script>
-    <script>
-      async function runWasm() {
-        const go = new Go();
-        try {
-          const result = await WebAssembly.instantiateStreaming(
-            fetch("main.wasm"),
-            go.importObject
-          );
-          go.run(result.instance);
-          console.log("WASM module loaded and Go program is running.");
-        } catch (err) {
-          console.error("Error running WASM:", err);
-        }
-      }
-      runWasm();
-    </script>
-  </head>
-  <body>
-    <h1>WebAssembly Demo(Golang)</h1>
-  </body>
+    <script src="script.js"></script>
+</body>
 </html>
